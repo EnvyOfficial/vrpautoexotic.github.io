@@ -17,6 +17,20 @@
     </div>
     <h2>Auto Exotic</h2>
     <form id="menuForm">
+      <div class="employee-selection">
+        <h3>Select Employee</h3>
+        <select id="employeeName" class="form-input" required>
+          <option value="">Select Employee</option>
+          <option value="Josh Freeman">Josh Freeman</option>
+          <option value="Higgles">Higgles</option>
+          <option value="Quan Phillaps">Quan Phillaps</option>
+          <option value="Baha Blasi">Baha Blasi</option>
+          <option value="Mark Logan">Mark Logan</option>
+          <option value="Rob Banks">Rob Banks</option>
+          <option value="Smelvin Smithers">Smelvin Smithers</option>
+        </select>
+      </div>
+
       <div class="menu-section">
         <h3>Service Items</h3>
         <div class="menu-grid">
@@ -169,14 +183,7 @@
           </select>
         </div>
 
-        <div class="input-group">
-          <label for="employeeName">Employee Name:</label>
-          <select id="employeeName" class="form-input" required>
-            <option value="">Select Employee</option>
-          </select>
-        </div>
-
-        <div class="totals">
+        <div class="totals-display">
           <div class="total-item">
             <span>Total:</span>
             <span id="total" class="amount">$0.00</span>
