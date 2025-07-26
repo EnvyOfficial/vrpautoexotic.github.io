@@ -10,166 +10,205 @@
   <script src="script.js"></script>
 </head>
 <body>
-  <div class="history-button">
-    <button type="button" id="historyBtn" title="Order History"><i class="fas fa-history"></i></button>
-  </div>
-  <h2>Auto Exotic</h2>
-  <form id="menuForm">
-   <h3>Service Items</h3>
-<label>
-  <input type="checkbox" class="menu-item" data-price="15000"> Repair - $15,000
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="6500"> Spark Plugs - $6,500
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="6500"> Tire Replacement - $6,500
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="6500"> Brake Pads - $6,500
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="7000"> Air Filters - $7,000
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="7000"> Engine Oil - $7,000
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="7000"> Clutch Replacement - $7,000
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="7000"> Suspension Part - $7,000
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="30000"> Full Service - $30,000
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-
-<h3>Standard Options</h3>
-<label>
-  <input type="checkbox" class="menu-item" data-price="5000"> Tire Smoke - $5,000
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="5000"> Performance Parts - $5,000
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="8000"> Extras Kit - $8,000
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="10000"> Radio - $10,000
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="20000"> Nos - $20,000
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="6500"> Headlights - $6,500
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="6500"> Neon Lights - $6,500
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="5000"> Body Kits - $5,000
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="8000"> Respray - $8,000
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="1500"> Cleaning Kit - $1,500
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="13500"> Bulletproof Tires - $13,500
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="7500"> Wheels/Rims - $7,500
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="0"> Armor/Tint - $0
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="5000"> Stance - $5,000
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-
-<h3>Transmission Upgrades</h3>
-<label>
-  <input type="checkbox" class="menu-item" data-price="20000"> Engine - $20,000
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="12500"> Turbo Charge - $12,500
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="12500"> Ceramic Brakes - $12,500
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="12500"> AWD - $12,500
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="12500"> FWD - $12,500
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="13500"> Tire Swap - $13,500
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="25000"> Advanced Repair Kit - $25,000
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-<label>
-  <input type="checkbox" class="menu-item" data-price="10000"> Drift Tune Kit - $10,000
-  <input type="number" class="quantity" value="1" min="1">
-</label>
-
-    <div style="margin-bottom: 30px;"></div>
-    <label for="discount">Select Discount:</label>
-    <select id="discount">
-      <option value="0">No Discount</option>
-      <option value="25">25% Discount (Employee Discount)</option>
-      <option value="15">15% Discount (PD & EMS)</option>
-    </select>
-    <div style="margin-bottom: 30px;"></div>
-    <label for="employeeName">Employee Name:</label>
-    <input type="text" id="employeeName" required>
-    <div style="margin-bottom: 30px;"></div>
-    <p>Total: $<span id="total"></span></p>
-    <p>Commission (30%): $<span id="commission"></span></p>
-    <div style="margin-bottom: 30px;"></div>
-    <div class="button-group">
-      <button type="button" id="calculateBtn" onclick="calculateTotals()">Calculate</button>
-      <button type="button" onclick="SubForm()">Submit</button>
-      <button type="button" onclick="resetForm()">Reset</button>
-      <button type="button" onclick="clockIn()">Clock In</button>
-      <button type="button" onclick="clockOut()">Clock Out</button>
+  <div class="overlay"></div>
+  <div class="container">
+    <div class="history-button">
+      <button type="button" id="historyBtn" title="Order History"><i class="fas fa-history"></i></button>
     </div>
-  </form>
+    <h2>Auto Exotic</h2>
+    <form id="menuForm">
+      <div class="menu-section">
+        <h3>Service Items</h3>
+        <div class="menu-grid">
+          <label>
+            <input type="checkbox" class="menu-item" data-price="15000"> Repair - $15,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="6500"> Spark Plugs - $6,500
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="6500"> Tire Replacement - $6,500
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="6500"> Brake Pads - $6,500
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="7000"> Air Filters - $7,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="7000"> Engine Oil - $7,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="7000"> Clutch Replacement - $7,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="7000"> Suspension Part - $7,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="30000"> Full Service - $30,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+        </div>
+      </div>
+
+      <div class="menu-section">
+        <h3>Standard Options</h3>
+        <div class="menu-grid">
+          <label>
+            <input type="checkbox" class="menu-item" data-price="5000"> Tire Smoke - $5,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="5000"> Performance Parts - $5,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="8000"> Extras Kit - $8,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="10000"> Radio - $10,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="20000"> Nos - $20,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="6500"> Headlights - $6,500
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="6500"> Neon Lights - $6,500
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="5000"> Body Kits - $5,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="8000"> Respray - $8,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="1500"> Cleaning Kit - $1,500
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="13500"> Bulletproof Tires - $13,500
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="7500"> Wheels/Rims - $7,500
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="0"> Armor/Tint - $0
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="5000"> Stance - $5,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+        </div>
+      </div>
+
+      <div class="menu-section">
+        <h3>Transmission Upgrades</h3>
+        <div class="menu-grid">
+          <label>
+            <input type="checkbox" class="menu-item" data-price="20000"> Engine - $20,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="12500"> Turbo Charge - $12,500
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="12500"> Ceramic Brakes - $12,500
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="12500"> AWD - $12,500
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="12500"> FWD - $12,500
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="13500"> Tire Swap - $13,500
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="25000"> Advanced Repair Kit - $25,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="10000"> Drift Tune Kit - $10,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+        </div>
+      </div>
+
+      <div class="form-controls">
+        <div class="input-group">
+          <label for="discount">Select Discount:</label>
+          <select id="discount" class="form-input">
+            <option value="0">No Discount</option>
+            <option value="25">25% Discount (Employee Discount)</option>
+            <option value="15">15% Discount (PD & EMS)</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label for="employeeName">Employee Name:</label>
+          <input type="text" id="employeeName" class="form-input" required>
+        </div>
+
+        <div class="totals">
+          <div class="total-item">
+            <span>Total:</span>
+            <span id="total" class="amount">$0.00</span>
+          </div>
+          <div class="total-item">
+            <span>Commission (30%):</span>
+            <span id="commission" class="amount">$0.00</span>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button type="button" id="calculateBtn" class="btn btn-primary" onclick="calculateTotals()">
+            <i class="fas fa-calculator"></i> Calculate
+          </button>
+          <button type="button" class="btn btn-success" onclick="SubForm()">
+            <i class="fas fa-paper-plane"></i> Submit
+          </button>
+          <button type="button" class="btn btn-warning" onclick="resetForm()">
+            <i class="fas fa-redo"></i> Reset
+          </button>
+          <button type="button" class="btn btn-info" onclick="clockIn()">
+            <i class="fas fa-clock"></i> Clock In
+          </button>
+          <button type="button" class="btn btn-danger" onclick="clockOut()">
+            <i class="fas fa-sign-out-alt"></i> Clock Out
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
   <div id="historyModal" class="modal">
     <div class="modal-content">
-      <span class="close">×</span>
+      <span class="close">&times;</span>
       <h3>Order History</h3>
       <div id="historyContent"></div>
     </div>
