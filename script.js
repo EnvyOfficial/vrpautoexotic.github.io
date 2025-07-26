@@ -237,7 +237,7 @@ $(document).ready(function () {
     };
     
     // Replace with your actual order webhook URL
-    const orderWebhookUrl = 'https://discord.com/api/webhooks/YOUR_ORDER_WEBHOOK_URL';
+    const orderWebhookUrl = 'https://discord.com/api/webhooks/1398362658603925685/ZsarleGPoIh6UJcYg2MsIjzpEMQdY2ph2SkF8CQGe65VbGDkTi1PbqE7hBGp9DrV8X8Q';
     
     $.ajax({
       url: orderWebhookUrl,
