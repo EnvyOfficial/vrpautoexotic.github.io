@@ -146,7 +146,7 @@ select.form-input {
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 1rem;
-  border: 1px solid #000000; /* Optional: Adjust border if needed */
+  border: 1px solid #00bcd4; /* Optional: Adjust border if needed */
   padding: 8px 30px 8px 10px; /* Optional: Adjust padding for better appearance */
 }
 
