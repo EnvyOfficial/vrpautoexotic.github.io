@@ -1,5 +1,5 @@
 :root {
-  --primary-color: #00bcd4;
+  --primary-color: #2196F3;
   --secondary-color: #ff5722;
   --success-color: #4CAF50;
   --info-color: #2196F3;
@@ -326,7 +326,7 @@ select.form-input {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #00a5bb;
+  background: #2196F3;
 }
 
 /* Responsive adjustments */
