@@ -1,13 +1,105 @@
 $(document).ready(function () {
   // Store clock-in time
   let clockInTime = null;
+  let currentUser = null;
+
+  // Remember Me Feature
+  function saveCredentials(username, password) {
+    localStorage.setItem('rememberedUsername', username);
+    localStorage.setItem('rememberedPassword', password);
+  }
+
+  function clearCredentials() {
+    localStorage.removeItem('rememberedUsername');
+    localStorage.removeItem('rememberedPassword');
+  }
+
+  function loadCredentials() {
+    const username = localStorage.getItem('rememberedUsername');
+    const password = localStorage.getItem('rememberedPassword');
+    
+    if (username) $('#loginUsername').val(username);
+    if (password) {
+      $('#loginPassword').val(password);
+      $('#rememberMe').prop('checked', true);
+    }
+  }
+
+  // Load credentials when page loads
+  loadCredentials();
+
+  // Login functionality
+  $('#loginBtn').on('click', function() {
+    const username = $('#loginUsername').val().trim();
+    const password = $('#loginPassword').val().trim();
+    const rememberMe = $('#rememberMe').is(':checked');
+    
+    if (!username || !password) {
+      alert('Please enter both username and password');
+      return;
+    }
+    
+    // Simple validation (replace with real authentication)
+    if (password.length < 4) {
+      alert('Password must be at least 4 characters');
+      return;
+    }
+    
+    if (rememberMe) {
+      saveCredentials(username, password);
+    } else {
+      clearCredentials();
+    }
+    
+    currentUser = username;
+    $('#employeeName').val(username);
+    $('#loginForm').hide();
+    $('#appContent').show();
+  });
+
+  // Register functionality
+  $('#registerBtn').on('click', function() {
+    const username = $('#registerUsername').val().trim();
+    const password = $('#registerPassword').val().trim();
+    const confirm = $('#registerConfirm').val().trim();
+    
+    if (!username || !password || !confirm) {
+      alert('All fields are required');
+      return;
+    }
+    
+    if (password !== confirm) {
+      alert('Passwords do not match');
+      return;
+    }
+    
+    if (password.length < 4) {
+      alert('Password must be at least 4 characters');
+      return;
+    }
+    
+    alert('Account created successfully! Please login.');
+    $('#registerForm').hide();
+    $('#loginForm').show();
+  });
+
+  // Toggle between login/register
+  $('#showRegisterBtn').on('click', function() {
+    $('#loginForm').hide();
+    $('#registerForm').show();
+  });
+
+  $('#showLoginBtn').on('click', function() {
+    $('#registerForm').hide();
+    $('#loginForm').show();
+  });
 
   // Calculate Totals
   window.calculateTotals = function () {
-    console.log('calculateTotals() triggered'); // Debug: Confirm function is called
+    console.log('calculateTotals() triggered');
     let total = 0;
     const menuItems = $('.menu-item:checked');
-    console.log('Checked items:', menuItems.length); // Debug: Log number of checked items
+    console.log('Checked items:', menuItems.length);
     if (menuItems.length === 0) {
       alert('Please select at least one item to calculate!');
       $('#total, #commission').text('');
@@ -17,11 +109,11 @@ $(document).ready(function () {
       const price = parseFloat($(this).attr('data-price'));
       const quantity = parseInt($(this).next('.quantity').val()) || 1;
       const discount = parseFloat($('#discount').val()) || 0;
-      console.log(`Processing item - Price: ${price}, Quantity: ${quantity}, Discount: ${discount}%`); // Debug: Log item details
+      console.log(`Processing item - Price: ${price}, Quantity: ${quantity}, Discount: ${discount}%`);
       if (!isNaN(price) && !isNaN(quantity) && quantity > 0) {
         const itemTotal = price * quantity * (1 - (discount / 100));
         total += itemTotal;
-        console.log(`Item: ${$(this).parent().text().trim()}, Item Total: ${itemTotal.toFixed(2)}`); // Debug: Log item total
+        console.log(`Item: ${$(this).parent().text().trim()}, Item Total: ${itemTotal.toFixed(2)}`);
       } else {
         console.warn(`Skipping item: Invalid price (${price}) or quantity (${quantity})`);
       }
@@ -29,12 +121,12 @@ $(document).ready(function () {
     const commission = total * 0.30;
     $('#total').text(total.toFixed(2));
     $('#commission').text(commission.toFixed(2));
-    console.log(`Final Total: ${total.toFixed(2)}, Commission: ${commission.toFixed(2)}`); // Debug: Log final results
+    console.log(`Final Total: ${total.toFixed(2)}, Commission: ${commission.toFixed(2)}`);
   };
 
   // Bind Calculate button
   $('#calculateBtn').on('click', function () {
-    console.log('Calculate button clicked'); // Debug: Confirm button click
+    console.log('Calculate button clicked');
     window.calculateTotals();
   });
 
@@ -69,7 +161,7 @@ $(document).ready(function () {
     }
   }
 
-  // Submit Form
+  // Submit Form with fixed Discord webhook
   window.SubForm = function () {
     const total = $('#total').text().trim();
     if (!total) {
@@ -106,56 +198,47 @@ $(document).ready(function () {
       second: '2-digit',
       hour12: true
     });
-    const formData = {
-      'Employee Name': employeeName,
-      Total: totalValue.toFixed(2),
-      Commission: commission.toFixed(2),
-      'Items Ordered': JSON.stringify(orderedItems),
-      'Discount Applied': discount,
-      Timestamp: timestamp
-    };
+
     const discordData = {
-      username: 'Receipts',
-      content: `New order submitted by ${employeeName}`,
+      username: 'Auto Exotic Shop',
       embeds: [{
-        title: 'Order Details',
+        title: 'New Order',
+        color: 0x00ff00,
         fields: [
-          { name: 'Employee Name', value: employeeName, inline: true },
+          { name: 'Employee', value: employeeName, inline: true },
           { name: 'Total', value: `$${totalValue.toFixed(2)}`, inline: true },
           { name: 'Commission', value: `$${commission.toFixed(2)}`, inline: true },
-          { name: 'Discount Applied', value: `${discount}%`, inline: true },
-          { name: 'Items Ordered', value: orderedItems.map(item => `${item.quantity}x ${item.name}`).join('\n') }
-        ],
-        color: 0x00ff00
+          { name: 'Discount', value: `${discount}%`, inline: true },
+          { name: 'Items', value: orderedItems.map(item => `${item.quantity}x ${item.name}`).join('\n') },
+          { name: 'Timestamp', value: timestamp }
+        ]
       }]
     };
-    $.when(
-      $.ajax({
-        url: 'https://discord.com/api/webhooks/1398362658603925685/ZsarleGPoIh6UJcYg2MsIjzpEMQdY2ph2SkF8CQGe65VbGDkTi1PbqE7hBGp9DrV8X8Q',
-        type: 'post',
-        data: formData,
-        headers: {
-          accessKey: '219db3aaa892bb5e19e27b5ec9ed348a',
-          secretKey: '8b9019c7605f42fcfc9f7a62dde61f63',
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      }),
-      $.ajax({
-        url: 'https://discord.com/api/webhooks/1398362658603925685/ZsarleGPoIh6UJcYg2MsIjzpEMQdY2ph2SkF8CQGe65VbGDkTi1PbqE7hBGp9DrV8X8Q',
-        type: 'post',
-        contentType: 'application/json',
-        data: JSON.stringify(discordData),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-    ).then(function () {
-      alert('Order submitted successfully!');
-      saveOrder(formData);
-      resetForm();
-    }).fail(function (xhr, status, error) {
-      alert('Error submitting order. Please try again.');
-      console.error(`Submission error: Status: ${xhr.status}, Error: ${error}, Response: ${xhr.responseText}`);
+
+    // Replace with your actual Discord webhook URL
+    const webhookUrl = 'https://discord.com/api/webhooks/1398362658603925685/ZsarleGPoIh6UJcYg2MsIjzpEMQdY2ph2SkF8CQGe65VbGDkTi1PbqE7hBGp9DrV8X8Q';
+    
+    $.ajax({
+      url: webhookUrl,
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(discordData),
+      success: function() {
+        alert('Order submitted successfully!');
+        saveOrder({
+          'Employee Name': employeeName,
+          Total: totalValue.toFixed(2),
+          Commission: commission.toFixed(2),
+          'Items Ordered': JSON.stringify(orderedItems),
+          'Discount Applied': discount,
+          Timestamp: timestamp
+        });
+        resetForm();
+      },
+      error: function(xhr, status, error) {
+        alert('Error submitting order. Please try again.');
+        console.error('Webhook Error:', status, error);
+      }
     });
   };
 
@@ -165,7 +248,6 @@ $(document).ready(function () {
     $('.quantity').val('');
     $('#total, #commission').text('');
     $('#discount').val('0');
-    // Removed $('#employeeName').val(''); to keep employee name
   };
 
   // Clock In
@@ -204,9 +286,6 @@ $(document).ready(function () {
       url: 'https://discord.com/api/webhooks/1398362885012459590/5H5-5Z4n8h3wqsN1N7hLOTB-XVjVNKzeFJ-07FHXWSVmnru9gLQsrfpiCBw27VMgnztv',
       method: 'POST',
       contentType: 'application/json',
-      headers: {
-        'Content-Type': 'application/json'
-      },
       data: JSON.stringify(discordData),
       success: function () {
         alert(`${employeeName} successfully clocked in at ${localTime}!`);
@@ -250,7 +329,7 @@ $(document).ready(function () {
     const durationText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m${minutes !== 1 ? 's' : ''}`;
     console.log(`Clock Out: Employee: ${employeeName}, Time: ${localTime}, Duration: ${durationText}`);
     const discordData = {
-      username: 'data',
+      username: 'Auto Exotic Clock',
       embeds: [{
         title: 'Clock Out',
         fields: [
@@ -266,14 +345,11 @@ $(document).ready(function () {
       url: 'https://discord.com/api/webhooks/1398362885012459590/5H5-5Z4n8h3wqsN1N7hLOTB-XVjVNKzeFJ-07FHXWSVmnru9gLQsrfpiCBw27VMgnztv',
       method: 'POST',
       contentType: 'application/json',
-      headers: {
-        'Content-Type': 'application/json'
-      },
       data: JSON.stringify(discordData),
       success: function () {
         alert(`${employeeName} successfully clocked out at ${localTime}! Duration: ${durationText}`);
         console.log('Clock-out webhook sent successfully');
-        clockInTime = null; // Reset clock-in time
+        clockInTime = null;
       },
       error: function (xhr, status, error) {
         alert('Error clocking out. Webhook may be invalid or unreachable. Please check console for details.');
@@ -291,12 +367,16 @@ $(document).ready(function () {
   // Close modal
   $('.close').on('click', function() {
     $('#historyModal').hide();
+    $('#statsModal').hide();
+    $('#adminModal').hide();
   });
 
   // Close modal when clicking outside
   $(window).on('click', function(event) {
-    if (event.target.id === 'historyModal') {
+    if (event.target.id === 'historyModal' || event.target.id === 'statsModal' || event.target.id === 'adminModal') {
       $('#historyModal').hide();
+      $('#statsModal').hide();
+      $('#adminModal').hide();
     }
   });
 });

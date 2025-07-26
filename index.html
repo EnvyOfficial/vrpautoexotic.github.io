@@ -31,6 +31,11 @@
         <label for="loginPassword">Password:</label>
         <input type="password" id="loginPassword" class="form-input" required>
       </div>
+      <div class="input-group">
+        <label>
+          <input type="checkbox" id="rememberMe"> Remember Me
+        </label>
+      </div>
       <div class="button-group">
         <button type="button" id="loginBtn" class="btn btn-primary">
           <i class="fas fa-sign-in-alt"></i> Login
@@ -69,6 +74,11 @@
     <!-- Main App (hidden until login) -->
     <div id="appContent" style="display:none;">
       <form id="menuForm">
+        <div class="input-group">
+          <label for="employeeName">Employee Name:</label>
+          <input type="text" id="employeeName" class="form-input" required>
+        </div>
+
         <div class="menu-section">
           <h3>Service Items</h3>
           <div class="menu-grid">
