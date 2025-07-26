@@ -1,93 +1,74 @@
-$(document).ready(function() {
-  // ADMIN CONFIGURATION
-  const ADMIN_PASSWORD = "admin123"; // Change this to your desired admin password
+$(document).ready(function () {
+  // Store clock-in time (original)
+  let clockInTime = null;
+
+  // NEW: Account system
+  const ADMIN_PASSWORD = "admin123";
   const REMEMBER_ME_KEY = "autoExoticRememberMe";
-  
-  // Data storage
   let users = JSON.parse(localStorage.getItem('autoExoticUsers')) || {};
-  let orders = JSON.parse(localStorage.getItem('autoExoticOrders')) || [];
   let employeeStats = JSON.parse(localStorage.getItem('autoExoticStats')) || {};
   let currentUser = null;
-  let clockInTime = null;
-  
-  // Initialize UI
-  function initUI() {
-    // Check for remembered login
-    const remembered = JSON.parse(localStorage.getItem(REMEMBER_ME_KEY));
-    if (remembered && remembered.username && users[remembered.username]) {
-      if (login(remembered.username, remembered.password, false)) {
-        $('#loginUsername').val(remembered.username);
-        $('#rememberMe').prop('checked', true);
-        return;
-      }
+
+  // NEW: Initialize with remembered user
+  const remembered = JSON.parse(localStorage.getItem(REMEMBER_ME_KEY));
+  if (remembered && users[remembered.username]) {
+    if (users[remembered.username].password === remembered.password) {
+      currentUser = remembered.username;
+      $('#employeeName').val(currentUser);
+      $('#loginForm').hide();
     }
-    
-    // Show login form by default
-    $('#loginForm').show();
-    $('#registerForm').hide();
-    $('#appContent').hide();
-    $('#logoutBtn').hide();
   }
-  
-  // Auth functions
-  function login(username, password, remember = true) {
-    if (!users[username]) {
-      alert('Username not found');
-      return false;
+
+  // NEW: Login function
+  window.login = function() {
+    const username = $('#loginUsername').val().trim();
+    const password = $('#loginPassword').val();
+    const rememberMe = $('#rememberMe').is(':checked');
+
+    if (!users[username] || users[username].password !== password) {
+      alert('Invalid credentials');
+      return;
     }
-    
-    if (users[username].password !== password) {
-      alert('Incorrect password');
-      return false;
-    }
-    
+
     currentUser = username;
-    localStorage.setItem('currentEmployee', username);
-    
-    if (remember) {
+    $('#employeeName').val(username);
+    $('#loginForm').hide();
+
+    if (rememberMe) {
       localStorage.setItem(REMEMBER_ME_KEY, JSON.stringify({
         username: username,
         password: password
       }));
     }
-    
+
     // Initialize stats if new user
     if (!employeeStats[username]) {
       employeeStats[username] = {
         orders: 0,
         revenue: 0,
         commission: 0,
-        hoursWorked: 0,
-        lastClockIn: null,
-        lastClockOut: null
+        hoursWorked: 0
       };
-      saveStats();
+      localStorage.setItem('autoExoticStats', JSON.stringify(employeeStats));
     }
-    
-    $('#loginForm').hide();
-    $('#registerForm').hide();
-    $('#appContent').show();
-    $('#logoutBtn').show();
-    return true;
-  }
-  
-  function logout() {
-    currentUser = null;
-    clockInTime = null;
-    localStorage.removeItem('currentEmployee');
-    localStorage.removeItem(REMEMBER_ME_KEY);
-    $('#loginForm').show();
-    $('#appContent').hide();
-    $('#logoutBtn').hide();
-    resetForm();
-  }
-  
-  function register(username, password) {
+  };
+
+  // NEW: Register function
+  window.register = function() {
+    const username = $('#registerUsername').val().trim();
+    const password = $('#registerPassword').val();
+    const confirm = $('#registerConfirm').val();
+
+    if (password !== confirm) {
+      alert('Passwords do not match');
+      return;
+    }
+
     if (users[username]) {
       alert('Username already exists');
-      return false;
+      return;
     }
-    
+
     users[username] = { password };
     localStorage.setItem('autoExoticUsers', JSON.stringify(users));
     
@@ -95,77 +76,154 @@ $(document).ready(function() {
       orders: 0,
       revenue: 0,
       commission: 0,
-      hoursWorked: 0,
-      lastClockIn: null,
-      lastClockOut: null
+      hoursWorked: 0
     };
-    saveStats();
-    
-    alert('Account created successfully! Please login.');
+    localStorage.setItem('autoExoticStats', JSON.stringify(employeeStats));
+
+    alert('Account created! Please login.');
     $('#registerForm').hide();
     $('#loginForm').show();
-    return true;
+  };
+
+  // NEW: Show/hide auth forms
+  window.showRegister = function() {
+    $('#loginForm').hide();
+    $('#registerForm').show();
+  };
+
+  window.showLogin = function() {
+    $('#registerForm').hide();
+    $('#loginForm').show();
+  };
+
+  // NEW: Display stats
+  window.showStats = function() {
+    const statsContent = $('#statsContent');
+    statsContent.empty();
+
+    const sorted = Object.entries(employeeStats).sort((a, b) => b[1].revenue - a[1].revenue);
+    
+    let html = `<table class="stats-table"><tr>
+      <th>Employee</th><th>Orders</th><th>Revenue</th><th>Commission</th><th>Hours</th>
+    </tr>`;
+
+    sorted.forEach(([user, stats]) => {
+      html += `<tr>
+        <td>${user}</td>
+        <td>${stats.orders}</td>
+        <td>$${stats.revenue.toFixed(2)}</td>
+        <td>$${stats.commission.toFixed(2)}</td>
+        <td>${stats.hoursWorked.toFixed(1)}</td>
+      </tr>`;
+    });
+
+    html += `</table>`;
+    statsContent.html(html);
+    $('#statsModal').show();
+  };
+
+  // NEW: Admin functions
+  window.verifyAdmin = function() {
+    if ($('#adminPassword').val() === ADMIN_PASSWORD) {
+      $('#adminContent').show();
+      displayAccounts();
+    } else {
+      alert('Invalid admin password');
+    }
+  };
+
+  function displayAccounts() {
+    let html = '';
+    Object.keys(users).forEach(user => {
+      html += `<div>
+        <input type="checkbox" id="del-${user}">
+        <label for="del-${user}">${user}</label>
+      </div>`;
+    });
+    $('#accountsList').html(html);
   }
-  
-  function saveStats() {
+
+  window.deleteAccounts = function() {
+    const toDelete = [];
+    $('input[type="checkbox"]:checked').each(function() {
+      toDelete.push($(this).attr('id').replace('del-', ''));
+    });
+
+    toDelete.forEach(user => {
+      if (user !== currentUser) {
+        delete users[user];
+        delete employeeStats[user];
+      }
+    });
+
+    localStorage.setItem('autoExoticUsers', JSON.stringify(users));
     localStorage.setItem('autoExoticStats', JSON.stringify(employeeStats));
-  }
-  
-  function saveOrders() {
-    localStorage.setItem('autoExoticOrders', JSON.stringify(orders));
-  }
-  
-  // Order functions
-  function calculateTotals() {
+    displayAccounts();
+  };
+
+  // ORIGINAL CODE (unchanged except for additions marked with "// NEW")
+  window.calculateTotals = function () {
+    console.log('calculateTotals() triggered');
     let total = 0;
     const menuItems = $('.menu-item:checked');
-    
+    console.log('Checked items:', menuItems.length);
     if (menuItems.length === 0) {
       alert('Please select at least one item to calculate!');
       $('#total, #commission').text('');
       return;
     }
-    
-    menuItems.each(function() {
+    menuItems.each(function () {
       const price = parseFloat($(this).attr('data-price'));
       const quantity = parseInt($(this).next('.quantity').val()) || 1;
       const discount = parseFloat($('#discount').val()) || 0;
-      
+      console.log(`Processing item - Price: ${price}, Quantity: ${quantity}, Discount: ${discount}%`);
       if (!isNaN(price) && !isNaN(quantity) && quantity > 0) {
         const itemTotal = price * quantity * (1 - (discount / 100));
         total += itemTotal;
+        console.log(`Item: ${$(this).parent().text().trim()}, Item Total: ${itemTotal.toFixed(2)}`);
+      } else {
+        console.warn(`Skipping item: Invalid price (${price}) or quantity (${quantity})`);
       }
     });
-    
     const commission = total * 0.30;
-    $('#total').text('$' + total.toFixed(2));
-    $('#commission').text('$' + commission.toFixed(2));
-  }
-  
-  function submitForm() {
-    const totalText = $('#total').text().replace('$', '').trim();
-    if (!totalText || totalText === '0.00') {
+    $('#total').text(total.toFixed(2));
+    $('#commission').text(commission.toFixed(2));
+    console.log(`Final Total: ${total.toFixed(2)}, Commission: ${commission.toFixed(2)}`);
+    
+    // NEW: Update stats
+    if (currentUser) {
+      employeeStats[currentUser].revenue += total;
+      employeeStats[currentUser].commission += commission;
+      localStorage.setItem('autoExoticStats', JSON.stringify(employeeStats));
+    }
+  };
+
+  // Original SubForm with NEW stats tracking
+  window.SubForm = function () {
+    const total = $('#total').text().trim();
+    if (!total) {
       alert('Please calculate the total first!');
       return;
     }
+    const employeeName = $('#employeeName').val().trim();
+    if (!employeeName) {
+      alert('Employee Name is required!');
+      return;
+    }
     
-    const total = parseFloat(totalText);
-    const commission = parseFloat($('#commission').text().replace('$', ''));
-    const discount = parseFloat($('#discount').val()) || 0;
-    
-    // Get ordered items
+    // NEW: Track current user if logged in
+    if (currentUser && currentUser !== employeeName) {
+      alert('Logged in as different user!');
+      return;
+    }
+
     const orderedItems = [];
-    $('.menu-item:checked').each(function() {
-      const itemName = $(this).parent().text().split(' - ')[0].trim();
+    $('.menu-item:checked').each(function () {
+      const itemName = $(this).parent().text().trim();
       const price = parseFloat($(this).attr('data-price'));
       const quantity = parseInt($(this).next('.quantity').val()) || 1;
-      
       if (!isNaN(price) && !isNaN(quantity) && quantity > 0) {
-        orderedItems.push({
-          name: itemName,
-          price: price,
-          quantity: quantity
-        });
+        orderedItems.push({ name: itemName, price, quantity });
       }
     });
     
@@ -174,7 +232,9 @@ $(document).ready(function() {
       return;
     }
     
-    // Create order record
+    const totalValue = parseFloat(total);
+    const commission = parseFloat($('#commission').text());
+    const discount = parseFloat($('#discount').val());
     const timestamp = new Date().toLocaleString('en-US', {
       year: 'numeric',
       month: 'numeric',
@@ -185,345 +245,251 @@ $(document).ready(function() {
       hour12: true
     });
     
-    const order = {
-      employee: currentUser,
-      total: total,
-      commission: commission,
-      discount: discount,
-      items: orderedItems,
-      timestamp: timestamp
+    const formData = {
+      'Employee Name': employeeName,
+      Total: totalValue.toFixed(2),
+      Commission: commission.toFixed(2),
+      'Items Ordered': JSON.stringify(orderedItems),
+      'Discount Applied': discount,
+      Timestamp: timestamp
     };
     
-    // Save order
-    orders.push(order);
-    saveOrders();
+    // NEW: Update stats
+    if (currentUser) {
+      employeeStats[currentUser].orders++;
+      localStorage.setItem('autoExoticStats', JSON.stringify(employeeStats));
+    }
+
+    // Original webhook code remains unchanged
+    const discordData = {
+      username: 'Receipts',
+      content: `New order submitted by ${employeeName}`,
+      embeds: [{
+        title: 'Order Details',
+        fields: [
+          { name: 'Employee Name', value: employeeName, inline: true },
+          { name: 'Total', value: `$${totalValue.toFixed(2)}`, inline: true },
+          { name: 'Commission', value: `$${commission.toFixed(2)}`, inline: true },
+          { name: 'Discount Applied', value: `${discount}%`, inline: true },
+          { name: 'Items Ordered', value: orderedItems.map(item => `${item.quantity}x ${item.name}`).join('\n') }
+        ],
+        color: 0x00ff00
+      }]
+    };
     
-    // Update stats
-    employeeStats[currentUser].orders++;
-    employeeStats[currentUser].revenue += total;
-    employeeStats[currentUser].commission += commission;
-    saveStats();
-    
-    alert('Order submitted successfully!');
-    resetForm();
-  }
-  
-  function resetForm() {
+    $.when(
+      $.ajax({
+        url: 'https://discord.com/api/webhooks/1398362658603925685/ZsarleGPoIh6UJcYg2MsIjzpEMQdY2ph2SkF8CQGe65VbGDkTi1PbqE7hBGp9DrV8X8Q',
+        type: 'post',
+        data: formData,
+        headers: {
+          accessKey: '219db3aaa892bb5e19e27b5ec9ed348a',
+          secretKey: '8b9019c7605f42fcfc9f7a62dde61f63',
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      }),
+      $.ajax({
+        url: 'https://discord.com/api/webhooks/1398362658603925685/ZsarleGPoIh6UJcYg2MsIjzpEMQdY2ph2SkF8CQGe65VbGDkTi1PbqE7hBGp9DrV8X8Q',
+        type: 'post',
+        contentType: 'application/json',
+        data: JSON.stringify(discordData),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+    ).then(function () {
+      alert('Order submitted successfully!');
+      saveOrder(formData);
+      resetForm();
+    }).fail(function (xhr, status, error) {
+      alert('Error submitting order. Please try again.');
+      console.error(`Submission error: Status: ${xhr.status}, Error: ${error}, Response: ${xhr.responseText}`);
+    });
+  };
+
+  // Original resetForm with NEW user tracking
+  window.resetForm = function () {
     $('.menu-item').prop('checked', false);
     $('.quantity').val('1');
     $('#total, #commission').text('');
     $('#discount').val('0');
-  }
-  
-  // Clock functions
-  function clockIn() {
-    if (!currentUser) {
-      alert('Please login first');
+    // Still keeps employee name if logged in
+    if (currentUser) {
+      $('#employeeName').val(currentUser);
+    }
+  };
+
+  // Original clockIn with NEW stats tracking
+  window.clockIn = function () {
+    console.log('clockIn() triggered');
+    const employeeName = $('#employeeName').val().trim();
+    if (!employeeName) {
+      alert('Employee Name is required!');
+      console.warn('Clock-in aborted: Employee name is empty');
       return;
     }
     
-    if (clockInTime) {
-      alert('You are already clocked in!');
+    // NEW: Verify logged in user
+    if (currentUser && currentUser !== employeeName) {
+      alert('Logged in as different user!');
       return;
     }
     
     clockInTime = new Date();
-    employeeStats[currentUser].lastClockIn = clockInTime.toISOString();
-    saveStats();
     
-    alert(`${currentUser} clocked in at ${clockInTime.toLocaleTimeString()}`);
-  }
-  
-  function clockOut() {
-    if (!currentUser) {
-      alert('Please login first');
+    // NEW: Track in stats
+    if (currentUser) {
+      employeeStats[currentUser].lastClockIn = clockInTime.toISOString();
+      localStorage.setItem('autoExoticStats', JSON.stringify(employeeStats));
+    }
+
+    const localTime = clockInTime.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    }) || 'Unknown Time';
+    
+    const discordData = {
+      username: 'Auto Exotic Clock',
+      embeds: [{
+        title: 'Clock In',
+        fields: [
+          { name: 'Employee Name', value: employeeName, inline: true },
+          { name: 'Time', value: localTime, inline: true }
+        ],
+        color: 0x0000ff
+      }]
+    };
+    
+    $.ajax({
+      url: 'https://discord.com/api/webhooks/1398362885012459590/5H5-5Z4n8h3wqsN1N7hLOTB-XVjVNKzeFJ-07FHXWSVmnru9gLQsrfpiCBw27VMgnztv',
+      method: 'POST',
+      contentType: 'application/json',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      data: JSON.stringify(discordData),
+      success: function () {
+        alert(`${employeeName} successfully clocked in at ${localTime}!`);
+      },
+      error: function (xhr, status, error) {
+        alert('Error clocking in. Webhook may be invalid or unreachable.');
+      }
+    });
+  };
+
+  // Original clockOut with NEW stats tracking
+  window.clockOut = function () {
+    console.log('clockOut() triggered');
+    const employeeName = $('#employeeName').val().trim();
+    if (!employeeName) {
+      alert('Employee Name is required!');
+      console.warn('Clock-out aborted: Employee name is empty');
+      return;
+    }
+    if (!clockInTime) {
+      alert('No clock-in time recorded. Please clock in first!');
+      console.warn('Clock-out aborted: No clock-in time recorded');
       return;
     }
     
-    if (!clockInTime) {
-      alert('You are not clocked in!');
+    // NEW: Verify logged in user
+    if (currentUser && currentUser !== employeeName) {
+      alert('Logged in as different user!');
       return;
     }
     
     const clockOutTime = new Date();
     const durationMs = clockOutTime - clockInTime;
-    const hoursWorked = durationMs / (1000 * 60 * 60);
+    const hours = Math.floor(durationMs / (1000 * 60 * 60));
+    const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+    const durationText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m${minutes !== 1 ? 's' : ''}`;
     
-    // Update stats
-    employeeStats[currentUser].hoursWorked += hoursWorked;
-    employeeStats[currentUser].lastClockOut = clockOutTime.toISOString();
-    saveStats();
+    // NEW: Track in stats
+    if (currentUser) {
+      employeeStats[currentUser].hoursWorked += durationMs / (1000 * 60 * 60);
+      employeeStats[currentUser].lastClockOut = clockOutTime.toISOString();
+      localStorage.setItem('autoExoticStats', JSON.stringify(employeeStats));
+    }
+
+    const discordData = {
+      username: 'data',
+      embeds: [{
+        title: 'Clock Out',
+        fields: [
+          { name: 'Employee Name', value: employeeName, inline: true },
+          { name: 'Time', value: clockOutTime.toLocaleString(), inline: true },
+          { name: 'Duration', value: durationText, inline: true }
+        ],
+        color: 0xff0000
+      }]
+    };
     
-    const hours = Math.floor(hoursWorked);
-    const minutes = Math.floor((hoursWorked % 1) * 60);
-    
-    alert(`${currentUser} clocked out at ${clockOutTime.toLocaleTimeString()}\nDuration: ${hours}h ${minutes}m`);
-    clockInTime = null;
+    $.ajax({
+      url: 'https://discord.com/api/webhooks/1398362885012459590/5H5-5Z4n8h3wqsN1N7hLOTB-XVjVNKzeFJ-07FHXWSVmnru9gLQsrfpiCBw27VMgnztv',
+      method: 'POST',
+      contentType: 'application/json',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      data: JSON.stringify(discordData),
+      success: function () {
+        alert(`${employeeName} successfully clocked out! Duration: ${durationText}`);
+        clockInTime = null;
+      },
+      error: function (xhr, status, error) {
+        alert('Error clocking out. Webhook may be invalid or unreachable.');
+      }
+    });
+  };
+
+  // Original history functions remain unchanged
+  function saveOrder(orderData) {
+    let orderHistory = JSON.parse(localStorage.getItem('orderHistory')) || [];
+    orderHistory.push(orderData);
+    localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
   }
-  
-  // Stats functions
+
   function displayOrderHistory() {
     const historyContent = $('#historyContent');
     historyContent.empty();
-    
-    const userOrders = orders.filter(order => order.employee === currentUser);
-    
-    if (userOrders.length === 0) {
+    const orderHistory = JSON.parse(localStorage.getItem('orderHistory')) || [];
+    if (orderHistory.length === 0) {
       historyContent.append('<p>No orders found.</p>');
-      return;
+    } else {
+      orderHistory.forEach((order, index) => {
+        const orderItems = JSON.parse(order['Items Ordered']);
+        const itemsList = orderItems.map(item => `${item.quantity}x ${item.name}`).join('<br>');
+        historyContent.append(
+          `<p><strong>Order #${index + 1}</strong><br>
+          Employee: ${order['Employee Name']}<br/>
+          Time: ${order['Timestamp']}<br>
+          Total: $${order['Total']}<br>
+          Commission: $${order['Commission']}<br>
+          Discount: ${order['Discount Applied']}%<br>
+          Items:<br>${itemsList}</p>`
+        );
+      });
     }
-    
-    userOrders.forEach((order, index) => {
-      const itemsList = order.items.map(item => 
-        `${item.quantity}x ${item.name} ($${item.price.toFixed(2)}`
-      ).join('<br>');
-      
-      historyContent.append(`
-        <p>
-          <strong>Order #${index + 1}</strong><br>
-          <strong>Date:</strong> ${order.timestamp}<br>
-          <strong>Total:</strong> $${order.total.toFixed(2)}<br>
-          <strong>Commission:</strong> $${order.commission.toFixed(2)}<br>
-          <strong>Discount:</strong> ${order.discount}%<br>
-          <strong>Items:</strong><br>${itemsList}
-        </p>
-      `);
-    });
   }
-  
-  function displayEmployeeStats(period = 'all') {
-    const statsContent = $('#statsContent');
-    statsContent.empty();
-    
-    // Filter by period
-    const now = new Date();
-    let filteredStats = {};
-    
-    Object.keys(employeeStats).forEach(username => {
-      const stats = employeeStats[username];
-      filteredStats[username] = { ...stats };
-    });
-    
-    // Sort by revenue
-    const sortedEmployees = Object.entries(filteredStats)
-      .sort((a, b) => b[1].revenue - a[1].revenue);
-    
-    if (sortedEmployees.length === 0) {
-      statsContent.append('<p>No statistics available.</p>');
-      return;
-    }
-    
-    // Create table
-    let html = `
-      <table class="stats-table">
-        <thead>
-          <tr>
-            <th>Employee</th>
-            <th>Orders</th>
-            <th>Revenue</th>
-            <th>Commission</th>
-            <th>Hours</th>
-            <th>Performance</th>
-          </tr>
-        </thead>
-        <tbody>
-    `;
-    
-    sortedEmployees.forEach(([username, stats], index) => {
-      const avgCommission = stats.orders > 0 
-        ? (stats.commission / stats.orders).toFixed(2)
-        : 0;
-      
-      const efficiency = stats.hoursWorked > 0
-        ? (stats.revenue / stats.hoursWorked).toFixed(2)
-        : 0;
-      
-      let badge = '';
-      if (index === 0) badge = '🏆 Top Seller';
-      else if (efficiency > 5000) badge = '⭐ Star Performer';
-      else if (stats.orders > 20) badge = '🔧 Consistent Worker';
-      
-      html += `
-        <tr>
-          <td>${username}</td>
-          <td>${stats.orders}</td>
-          <td>$${stats.revenue.toFixed(2)}</td>
-          <td>$${stats.commission.toFixed(2)}</td>
-          <td>${stats.hoursWorked.toFixed(1)}</td>
-          <td>${badge}</td>
-        </tr>
-      `;
-    });
-    
-    html += `</tbody></table>`;
-    statsContent.append(html);
-  }
-  
-  // Admin functions
-  function showAdminPanel() {
-    $('#adminModal').show();
-    $('#adminContent').hide();
-    $('#adminPassword').val('');
-  }
-  
-  function verifyAdmin(password) {
-    return password === ADMIN_PASSWORD;
-  }
-  
-  function displayAccounts() {
-    const accountsList = $('#accountsList');
-    accountsList.empty();
-    
-    Object.keys(users).forEach(username => {
-      accountsList.append(`
-        <div class="account-item">
-          <input type="checkbox" class="account-checkbox" id="acc-${username}" value="${username}">
-          <label for="acc-${username}">${username}</label>
-          <span>Orders: ${employeeStats[username]?.orders || 0}</span>
-        </div>
-      `);
-    });
-  }
-  
-  function deleteSelectedAccounts() {
-    const selected = $('.account-checkbox:checked').map(function() {
-      return $(this).val();
-    }).get();
-    
-    if (selected.length === 0) {
-      alert('Please select at least one account to delete');
-      return;
-    }
-    
-    if (!confirm(`Are you sure you want to delete ${selected.length} account(s)?`)) {
-      return;
-    }
-    
-    selected.forEach(username => {
-      if (username === currentUser) {
-        alert(`Cannot delete currently logged in user (${username})`);
-        return;
-      }
-      
-      delete users[username];
-      delete employeeStats[username];
-      orders = orders.filter(order => order.employee !== username);
-    });
-    
-    localStorage.setItem('autoExoticUsers', JSON.stringify(users));
-    localStorage.setItem('autoExoticStats', JSON.stringify(employeeStats));
-    localStorage.setItem('autoExoticOrders', JSON.stringify(orders));
-    
-    alert(`${selected.length} account(s) deleted successfully`);
-    displayAccounts();
-  }
-  
-  // Event handlers
-  $('#loginBtn').click(function() {
-    const username = $('#loginUsername').val().trim();
-    const password = $('#loginPassword').val();
-    const rememberMe = $('#rememberMe').is(':checked');
-    
-    if (!username || !password) {
-      alert('Please enter both username and password');
-      return;
-    }
-    
-    login(username, password, rememberMe);
-  });
-  
-  $('#logoutBtn').click(function() {
-    logout();
-  });
-  
-  $('#registerBtn').click(function() {
-    const username = $('#registerUsername').val().trim();
-    const password = $('#registerPassword').val();
-    const confirm = $('#registerConfirm').val();
-    
-    if (!username || !password) {
-      alert('Please enter both username and password');
-      return;
-    }
-    
-    if (password !== confirm) {
-      alert('Passwords do not match');
-      return;
-    }
-    
-    register(username, password);
-  });
-  
-  $('#showRegisterBtn').click(function() {
-    $('#loginForm').hide();
-    $('#registerForm').show();
-  });
-  
-  $('#showLoginBtn').click(function() {
-    $('#registerForm').hide();
-    $('#loginForm').show();
-  });
-  
-  $('#calculateBtn').click(function() {
-    calculateTotals();
-  });
-  
-  $('#historyBtn').click(function() {
+
+  // Modal controls (original)
+  $('#historyBtn').on('click', function() {
     displayOrderHistory();
     $('#historyModal').show();
   });
-  
-  $('#statsBtn').click(function() {
-    displayEmployeeStats();
-    $('#statsModal').show();
+
+  $('.close').on('click', function() {
+    $('#historyModal, #statsModal, #adminModal').hide();
   });
-  
-  $('#adminBtn').click(function() {
-    showAdminPanel();
-  });
-  
-  $('.close').click(function() {
-    $(this).closest('.modal').hide();
-  });
-  
-  $(window).click(function(event) {
+
+  $(window).on('click', function(event) {
     if ($(event.target).hasClass('modal')) {
       $('.modal').hide();
     }
   });
-  
-  // Filter controls
-  $(document).on('click', '.filter-btn', function() {
-    $('.filter-btn').removeClass('active');
-    $(this).addClass('active');
-    displayEmployeeStats($(this).data('period'));
-  });
-  
-  // Admin controls
-  $('#adminPassword').keypress(function(e) {
-    if (e.which === 13) {
-      $('#adminPassword').trigger('blur');
-    }
-  });
-  
-  $('#adminPassword').blur(function() {
-    if (verifyAdmin($(this).val())) {
-      $('#adminContent').show();
-      displayAccounts();
-    } else if ($(this).val()) {
-      alert('Incorrect admin password');
-    }
-  });
-  
-  $('#deleteSelectedBtn').click(deleteSelectedAccounts);
-  
-  // Initialize
-  initUI();
-  
-  // Make functions available globally
-  window.calculateTotals = calculateTotals;
-  window.SubForm = submitForm;
-  window.resetForm = resetForm;
-  window.clockIn = clockIn;
-  window.clockOut = clockOut;
 });
