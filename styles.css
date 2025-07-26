@@ -40,6 +40,34 @@ body {
   padding: 20px;
 }
 
+.action-buttons {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.action-buttons button {
+  background: var(--dark-bg);
+  border: 1px solid var(--border-color);
+  color: var(--light-text);
+  font-size: 1.5rem;
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.action-buttons button:hover {
+  background: var(--primary-color);
+  transform: rotate(360deg);
+}
+
 h2 {
   color: var(--primary-color);
   font-size: 2.5rem;
@@ -58,6 +86,17 @@ h3 {
   display: inline-block;
   text-align: center;
   width: 100%;
+}
+
+.auth-form {
+  background: var(--dark-bg);
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  border: 1px solid var(--border-color);
+  max-width: 500px;
+  margin: 0 auto;
 }
 
 form {
@@ -226,32 +265,6 @@ select.form-input {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.history-button {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-}
-
-.history-button button {
-  background: var(--dark-bg);
-  border: 1px solid var(--border-color);
-  color: var(--light-text);
-  font-size: 1.5rem;
-  cursor: pointer;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-}
-
-.history-button button:hover {
-  background: var(--primary-color);
-  transform: rotate(360deg);
-}
-
 .modal {
   display: none;
   position: fixed;
@@ -292,7 +305,8 @@ select.form-input {
   transform: scale(1.2);
 }
 
-#historyContent {
+#historyContent,
+#statsContent {
   text-align: left;
   max-height: 60vh;
   overflow-y: auto;
@@ -309,6 +323,64 @@ select.form-input {
 
 #historyContent strong {
   color: var(--primary-color);
+}
+
+.filter-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.filter-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  cursor: pointer;
+}
+
+.filter-btn.active {
+  background: var(--primary-color);
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.stats-table th,
+.stats-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.stats-table th {
+  background: rgba(0, 0, 0, 0.5);
+  color: var(--primary-color);
+}
+
+.stats-table tr:hover {
+  background: var(--hover-bg);
+}
+
+.account-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.account-item:hover {
+  background: var(--hover-bg);
+}
+
+.account-checkbox {
+  margin-right: 1rem;
 }
 
 /* Scrollbar styling */
@@ -335,7 +407,7 @@ select.form-input {
     padding: 10px;
   }
   
-  form {
+  form, .auth-form {
     padding: 1rem;
   }
   
@@ -355,5 +427,16 @@ select.form-input {
   .modal-content {
     width: 95%;
     margin: 10% auto;
+  }
+  
+  .action-buttons {
+    top: 10px;
+    right: 10px;
+  }
+  
+  .action-buttons button {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
   }
 }
