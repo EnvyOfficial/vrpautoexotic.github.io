@@ -113,41 +113,61 @@ input[type="number"] {
   text-align: center;
 }
 
+/* Updated Form Controls Section */
 .form-controls {
   margin-top: 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: end;
 }
 
 .input-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
 }
 
 .input-group label {
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 8px;
+  font-size: 1rem;
+  color: var(--primary-color);
+  font-weight: bold;
   background: none;
   border: none;
   padding: 0;
+  text-align: left;
 }
 
 .form-input {
   width: 100%;
-  padding: 0.8rem;
+  padding: 10px 15px;
   border-radius: 5px;
   border: 1px solid var(--border-color);
   background: rgba(0, 0, 0, 0.3);
   color: white;
   font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 188, 212, 0.3);
 }
 
 select.form-input {
   appearance: none;
-  background-color: #00000077; /* Change this to your desired color (e.g., white) */
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
   background-repeat: no-repeat;
-  background-position: right 10px center;
+  background-position: right 15px center;
   background-size: 1rem;
-  border: 1px solid #00bcd4; /* Optional: Adjust border if needed */
-  padding: 8px 30px 8px 10px; /* Optional: Adjust padding for better appearance */
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+input.form-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 1;
 }
 
 .totals {
@@ -156,6 +176,7 @@ select.form-input {
   border-radius: 5px;
   margin: 1.5rem 0;
   border: 1px solid var(--border-color);
+  grid-column: span 2;
 }
 
 .total-item {
@@ -180,6 +201,7 @@ select.form-input {
   justify-content: center;
   gap: 10px;
   margin-top: 1.5rem;
+  grid-column: span 2;
 }
 
 .btn {
@@ -344,6 +366,11 @@ select.form-input {
   
   .menu-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .form-controls {
+    grid-template-columns: 1fr;
+    gap: 15px;
   }
   
   .button-group {
