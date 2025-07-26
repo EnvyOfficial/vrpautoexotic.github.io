@@ -7,8 +7,8 @@
   --danger-color: #f44336;
   --dark-bg: rgba(0, 0, 0, 0.85);
   --light-text: #ffffff;
-  --border-color: rgba(0, 0, 0, 0.452);
-  --hover-bg: rgba(0, 0, 0, 0.418);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --hover-bg: rgba(255, 255, 255, 0.1);
 }
 
 body {
