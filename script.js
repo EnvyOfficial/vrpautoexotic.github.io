@@ -1,13 +1,20 @@
 $(document).ready(function () {
   // Store clock-in time
   let clockInTime = null;
+  const employeeHours = {};
+
+  // Initialize employee hours from localStorage
+  const savedHours = localStorage.getItem('employeeHours');
+  if (savedHours) {
+    Object.assign(employeeHours, JSON.parse(savedHours));
+  }
 
   // Calculate Totals
   window.calculateTotals = function () {
-    console.log('calculateTotals() triggered'); // Debug: Confirm function is called
+    console.log('calculateTotals() triggered');
     let total = 0;
     const menuItems = $('.menu-item:checked');
-    console.log('Checked items:', menuItems.length); // Debug: Log number of checked items
+    console.log('Checked items:', menuItems.length);
     if (menuItems.length === 0) {
       alert('Please select at least one item to calculate!');
       $('#total, #commission').text('');
@@ -17,11 +24,11 @@ $(document).ready(function () {
       const price = parseFloat($(this).attr('data-price'));
       const quantity = parseInt($(this).next('.quantity').val()) || 1;
       const discount = parseFloat($('#discount').val()) || 0;
-      console.log(`Processing item - Price: ${price}, Quantity: ${quantity}, Discount: ${discount}%`); // Debug: Log item details
+      console.log(`Processing item - Price: ${price}, Quantity: ${quantity}, Discount: ${discount}%`);
       if (!isNaN(price) && !isNaN(quantity) && quantity > 0) {
         const itemTotal = price * quantity * (1 - (discount / 100));
         total += itemTotal;
-        console.log(`Item: ${$(this).parent().text().trim()}, Item Total: ${itemTotal.toFixed(2)}`); // Debug: Log item total
+        console.log(`Item: ${$(this).parent().text().trim()}, Item Total: ${itemTotal.toFixed(2)}`);
       } else {
         console.warn(`Skipping item: Invalid price (${price}) or quantity (${quantity})`);
       }
@@ -29,12 +36,12 @@ $(document).ready(function () {
     const commission = total * 0.30;
     $('#total').text(total.toFixed(2));
     $('#commission').text(commission.toFixed(2));
-    console.log(`Final Total: ${total.toFixed(2)}, Commission: ${commission.toFixed(2)}`); // Debug: Log final results
+    console.log(`Final Total: ${total.toFixed(2)}, Commission: ${commission.toFixed(2)}`);
   };
 
   // Bind Calculate button
   $('#calculateBtn').on('click', function () {
-    console.log('Calculate button clicked'); // Debug: Confirm button click
+    console.log('Calculate button clicked');
     window.calculateTotals();
   });
 
@@ -162,10 +169,9 @@ $(document).ready(function () {
   // Reset Form
   window.resetForm = function () {
     $('.menu-item').prop('checked', false);
-    $('.quantity').val('');
+    $('.quantity').val('1');
     $('#total, #commission').text('');
     $('#discount').val('0');
-    // Removed $('#employeeName').val(''); to keep employee name
   };
 
   // Clock In
@@ -177,7 +183,16 @@ $(document).ready(function () {
       console.warn('Clock-in aborted: Employee name is empty');
       return;
     }
+    
+    // Check if already clocked in
+    if (localStorage.getItem(`clockIn_${employeeName}`)) {
+      alert(`${employeeName} is already clocked in!`);
+      return;
+    }
+    
     clockInTime = new Date();
+    localStorage.setItem(`clockIn_${employeeName}`, clockInTime.getTime());
+    
     const localTime = clockInTime.toLocaleString('en-US', {
       year: 'numeric',
       month: 'numeric',
@@ -187,7 +202,9 @@ $(document).ready(function () {
       second: '2-digit',
       hour12: true
     }) || 'Unknown Time';
+    
     console.log(`Clock In: Employee: ${employeeName}, Time: ${localTime}`);
+    
     const discordData = {
       username: 'Auto Exotic Clock',
       embeds: [{
@@ -199,6 +216,7 @@ $(document).ready(function () {
         color: 0x0000ff
       }]
     };
+    
     console.log('Sending clock-in webhook:', JSON.stringify(discordData));
     $.ajax({
       url: 'https://discord.com/api/webhooks/1398362885012459590/5H5-5Z4n8h3wqsN1N7hLOTB-XVjVNKzeFJ-07FHXWSVmnru9gLQsrfpiCBw27VMgnztv',
@@ -228,13 +246,29 @@ $(document).ready(function () {
       console.warn('Clock-out aborted: Employee name is empty');
       return;
     }
+    
+    const clockInTime = localStorage.getItem(`clockIn_${employeeName}`);
     if (!clockInTime) {
-      alert('No clock-in time recorded. Please clock in first!');
+      alert('No clock-in record found! Please clock in first.');
       console.warn('Clock-out aborted: No clock-in time recorded');
       return;
     }
-    const clockOutTime = new Date();
-    const localTime = clockOutTime.toLocaleString('en-US', {
+    
+    const clockOutTime = new Date().getTime();
+    const durationMs = clockOutTime - parseInt(clockInTime);
+    const hoursWorked = (durationMs / (1000 * 60 * 60)).toFixed(2);
+    
+    // Update employee hours
+    if (!employeeHours[employeeName]) {
+      employeeHours[employeeName] = 0;
+    }
+    employeeHours[employeeName] += parseFloat(hoursWorked);
+    
+    // Save to localStorage
+    localStorage.setItem('employeeHours', JSON.stringify(employeeHours));
+    localStorage.removeItem(`clockIn_${employeeName}`);
+    
+    const localTime = new Date().toLocaleString('en-US', {
       year: 'numeric',
       month: 'numeric',
       day: 'numeric',
@@ -243,14 +277,16 @@ $(document).ready(function () {
       second: '2-digit',
       hour12: true
     }) || 'Unknown Time';
-    // Calculate duration
-    const durationMs = clockOutTime - clockInTime;
+    
+    // Format duration
     const hours = Math.floor(durationMs / (1000 * 60 * 60));
     const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
-    const durationText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m${minutes !== 1 ? 's' : ''}`;
+    const durationText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+    
     console.log(`Clock Out: Employee: ${employeeName}, Time: ${localTime}, Duration: ${durationText}`);
+    
     const discordData = {
-      username: 'data',
+      username: 'Auto Exotic Clock',
       embeds: [{
         title: 'Clock Out',
         fields: [
@@ -261,6 +297,7 @@ $(document).ready(function () {
         color: 0xff0000
       }]
     };
+    
     console.log('Sending clock-out webhook:', JSON.stringify(discordData));
     $.ajax({
       url: 'https://discord.com/api/webhooks/1398362885012459590/5H5-5Z4n8h3wqsN1N7hLOTB-XVjVNKzeFJ-07FHXWSVmnru9gLQsrfpiCBw27VMgnztv',
@@ -273,7 +310,6 @@ $(document).ready(function () {
       success: function () {
         alert(`${employeeName} successfully clocked out at ${localTime}! Duration: ${durationText}`);
         console.log('Clock-out webhook sent successfully');
-        clockInTime = null; // Reset clock-in time
       },
       error: function (xhr, status, error) {
         alert('Error clocking out. Webhook may be invalid or unreachable. Please check console for details.');
@@ -282,21 +318,156 @@ $(document).ready(function () {
     });
   };
 
+  // Leaderboard functionality
+  $('#leaderboardBtn').on('click', function() {
+    displayLeaderboard();
+    $('#leaderboardModal').show();
+  });
+
+  function displayLeaderboard(timeframe = 'week') {
+    const history = JSON.parse(localStorage.getItem('employeeHours')) || {};
+    const now = new Date();
+    let filteredHours = {};
+    
+    // Filter by timeframe (simplified for demo)
+    Object.keys(history).forEach(employee => {
+      filteredHours[employee] = history[employee];
+    });
+    
+    // Sort employees by hours
+    const sortedEmployees = Object.keys(filteredHours)
+      .map(employee => ({
+        name: employee,
+        hours: filteredHours[employee]
+      }))
+      .sort((a, b) => b.hours - a.hours);
+    
+    // Display leaderboard
+    const leaderboardContent = $('#leaderboardContent');
+    leaderboardContent.empty();
+    
+    if (sortedEmployees.length === 0) {
+      leaderboardContent.append('<p>No employee hours recorded yet.</p>');
+    } else {
+      leaderboardContent.append('<ol class="leaderboard-list"></ol>');
+      const list = $('.leaderboard-list');
+      
+      sortedEmployees.forEach((employee, index) => {
+        const medal = index < 3 ? ['🥇', '🥈', '🥉'][index] : `${index + 1}.`;
+        list.append(`
+          <li>
+            <span class="rank">${medal}</span>
+            <span class="employee-name">${employee.name}</span>
+            <span class="hours">${employee.hours.toFixed(2)} hrs</span>
+          </li>
+        `);
+      });
+    }
+    
+    // Update active timeframe button
+    $('.timeframe-btn').removeClass('active');
+    $(`.timeframe-btn[data-timeframe="${timeframe}"]`).addClass('active');
+  }
+
+  // Timeframe selection
+  $(document).on('click', '.timeframe-btn', function() {
+    const timeframe = $(this).data('timeframe');
+    displayLeaderboard(timeframe);
+  });
+
+  // Shop statistics
+  $('#statsBtn').on('click', function() {
+    displayShopStats();
+    $('#statsModal').show();
+  });
+
+  function displayShopStats() {
+    const orders = JSON.parse(localStorage.getItem('orderHistory')) || [];
+    
+    // Calculate stats
+    const totalRevenue = orders.reduce((sum, order) => sum + parseFloat(order.Total), 0);
+    const totalOrders = orders.length;
+    const avgOrder = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+    
+    // Find top service
+    const serviceCounts = {};
+    orders.forEach(order => {
+      const items = JSON.parse(order['Items Ordered']);
+      items.forEach(item => {
+        const serviceName = item.name.split(' - ')[0];
+        serviceCounts[serviceName] = (serviceCounts[serviceName] || 0) + item.quantity;
+      });
+    });
+    
+    const topService = Object.keys(serviceCounts).length > 0 
+      ? Object.entries(serviceCounts).sort((a, b) => b[1] - a[1])[0][0]
+      : 'No data';
+    
+    // Update UI
+    $('#totalRevenue').text('$' + totalRevenue.toFixed(2));
+    $('#totalOrders').text(totalOrders);
+    $('#avgOrder').text('$' + avgOrder.toFixed(2));
+    $('#topService').text(topService);
+    
+    // Render chart
+    renderRevenueChart(orders);
+  }
+
+  function renderRevenueChart(orders) {
+    // Group by day
+    const dailyRevenue = {};
+    orders.forEach(order => {
+      const date = new Date(order.Timestamp).toLocaleDateString();
+      dailyRevenue[date] = (dailyRevenue[date] || 0) + parseFloat(order.Total);
+    });
+    
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    if (window.revenueChart) {
+      window.revenueChart.destroy();
+    }
+    
+    window.revenueChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(dailyRevenue),
+        datasets: [{
+          label: 'Daily Revenue ($)',
+          data: Object.values(dailyRevenue),
+          backgroundColor: 'rgba(0, 188, 212, 0.7)',
+          borderColor: 'rgba(0, 188, 212, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return '$' + value;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
   // History Button Modal
   $('#historyBtn').on('click', function() {
     displayOrderHistory();
     $('#historyModal').show();
   });
 
-  // Close modal
+  // Close modals
   $('.close').on('click', function() {
-    $('#historyModal').hide();
+    $('.modal').hide();
   });
 
-  // Close modal when clicking outside
   $(window).on('click', function(event) {
-    if (event.target.id === 'historyModal') {
-      $('#historyModal').hide();
+    if ($(event.target).hasClass('modal')) {
+      $('.modal').hide();
     }
   });
 });

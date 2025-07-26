@@ -12,10 +12,14 @@
 <body>
   <div class="overlay"></div>
   <div class="container">
-    <div class="history-button">
-      <button type="button" id="historyBtn" title="Order History"><i class="fas fa-history"></i></button>
+    <div class="header-buttons">
+      <button id="historyBtn" class="header-btn" title="Order History"><i class="fas fa-history"></i></button>
+      <button id="leaderboardBtn" class="header-btn" title="Employee Leaderboard"><i class="fas fa-trophy"></i></button>
+      <button id="statsBtn" class="header-btn" title="Shop Statistics"><i class="fas fa-chart-bar"></i></button>
     </div>
+    
     <h2>Auto Exotic</h2>
+    
     <form id="menuForm">
       <div class="menu-section">
         <h3>Service Items</h3>
@@ -59,69 +63,67 @@
         </div>
       </div>
 
-     <div class="menu-section">
-  <h3>Standard Options</h3>
-  <div class="menu-grid">
-    <label>
-      <input type="checkbox" class="menu-item" data-price="5000"> Performance Parts - $5,000
-      <input type="number" class="quantity" value="1" min="1">
-    </label>
-    <label>
-      <input type="checkbox" class="menu-item" data-price="5000"> Cosmetic Kits - $5,000
-      <input type="number" class="quantity" value="1" min="1">
-    </label>
-    <label>
-      <input type="checkbox" class="menu-item" data-price="8000"> Respray - $8,000
-      <input type="number" class="quantity" value="1" min="1">
-    </label>
-
-    <label>
-      <input type="checkbox" class="menu-item" data-price="5000"> Tire Smoke - $5,000
-      <input type="number" class="quantity" value="1" min="1">
-    </label>
-    <label>
-      <input type="checkbox" class="menu-item" data-price="8000"> Extras Kit - $8,000
-      <input type="number" class="quantity" value="1" min="1">
-    </label>
-    <label>
-      <input type="checkbox" class="menu-item" data-price="10000"> Radio - $10,000
-      <input type="number" class="quantity" value="1" min="1">
-    </label>
-    <label>
-      <input type="checkbox" class="menu-item" data-price="20000"> Nos - $20,000
-      <input type="number" class="quantity" value="1" min="1">
-    </label>
-    <label>
-      <input type="checkbox" class="menu-item" data-price="6500"> Headlights - $6,500
-      <input type="number" class="quantity" value="1" min="1">
-    </label>
-    <label>
-      <input type="checkbox" class="menu-item" data-price="6500"> Neon Lights - $6,500
-      <input type="number" class="quantity" value="1" min="1">
-    </label>
-    <label>
-      <input type="checkbox" class="menu-item" data-price="1500"> Cleaning Kit - $1,500
-      <input type="number" class="quantity" value="1" min="1">
-    </label>
-    <label>
-      <input type="checkbox" class="menu-item" data-price="13500"> Bulletproof Tires - $13,500
-      <input type="number" class="quantity" value="1" min="1">
-    </label>
-    <label>
-      <input type="checkbox" class="menu-item" data-price="7500"> Wheels/Rims - $7,500
-      <input type="number" class="quantity" value="1" min="1">
-    </label>
-    <label>
-      <input type="checkbox" class="menu-item" data-price="0"> Armor/Tint - $0
-      <input type="number" class="quantity" value="1" min="1">
-    </label>
-    <label>
-      <input type="checkbox" class="menu-item" data-price="5000"> Stance - $5,000
-      <input type="number" class="quantity" value="1" min="1">
-    </label>
-  </div>
-</div>
-
+      <div class="menu-section">
+        <h3>Standard Options</h3>
+        <div class="menu-grid">
+          <label>
+            <input type="checkbox" class="menu-item" data-price="5000"> Performance Parts - $5,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="5000"> Cosmetic Kits - $5,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="8000"> Respray - $8,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="5000"> Tire Smoke - $5,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="8000"> Extras Kit - $8,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="10000"> Radio - $10,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="20000"> Nos - $20,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="6500"> Headlights - $6,500
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="6500"> Neon Lights - $6,500
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="1500"> Cleaning Kit - $1,500
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="13500"> Bulletproof Tires - $13,500
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="7500"> Wheels/Rims - $7,500
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="0"> Armor/Tint - $0
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+          <label>
+            <input type="checkbox" class="menu-item" data-price="5000"> Stance - $5,000
+            <input type="number" class="quantity" value="1" min="1">
+          </label>
+        </div>
+      </div>
 
       <div class="menu-section">
         <h3>Transmission Upgrades</h3>
@@ -215,5 +217,46 @@
       <div id="historyContent"></div>
     </div>
   </div>
+
+  <div id="leaderboardModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>Employee Leaderboard</h3>
+      <div class="timeframe-selector">
+        <button class="timeframe-btn active" data-timeframe="week">This Week</button>
+        <button class="timeframe-btn" data-timeframe="month">This Month</button>
+        <button class="timeframe-btn" data-timeframe="all">All Time</button>
+      </div>
+      <div id="leaderboardContent"></div>
+    </div>
+  </div>
+
+  <div id="statsModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>Shop Statistics</h3>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="totalRevenue">$0</div>
+          <div class="stat-label">Total Revenue</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalOrders">0</div>
+          <div class="stat-label">Total Orders</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="avgOrder">$0</div>
+          <div class="stat-label">Avg. Order</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="topService">-</div>
+          <div class="stat-label">Top Service</div>
+        </div>
+      </div>
+      <canvas id="revenueChart"></canvas>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
