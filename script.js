@@ -6,7 +6,6 @@ $(document).ready(function () {
   // Initialize employees
   function initializeEmployees() {
     employees = JSON.parse(localStorage.getItem('employees')) || [
-      "Select your name",
       "Josh Freeman",
       "Higgles",
       "Quan Phillaps",
