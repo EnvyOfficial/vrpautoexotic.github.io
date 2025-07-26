@@ -1,6 +1,7 @@
 $(document).ready(function() {
   // ADMIN CONFIGURATION
-  const ADMIN_PASSWORD = "AE7544"; // Change this to your desired admin password
+  const ADMIN_PASSWORD = "admin123"; // Change this to your desired admin password
+  const REMEMBER_ME_KEY = "autoExoticRememberMe";
   
   // Data storage
   let users = JSON.parse(localStorage.getItem('autoExoticUsers')) || {};
@@ -11,20 +12,25 @@ $(document).ready(function() {
   
   // Initialize UI
   function initUI() {
+    // Check for remembered login
+    const remembered = JSON.parse(localStorage.getItem(REMEMBER_ME_KEY));
+    if (remembered && remembered.username && users[remembered.username]) {
+      if (login(remembered.username, remembered.password, false)) {
+        $('#loginUsername').val(remembered.username);
+        $('#rememberMe').prop('checked', true);
+        return;
+      }
+    }
+    
     // Show login form by default
     $('#loginForm').show();
     $('#registerForm').hide();
     $('#appContent').hide();
-    
-    // Load any saved employee name
-    const savedUser = localStorage.getItem('currentEmployee');
-    if (savedUser && users[savedUser]) {
-      $('#loginUsername').val(savedUser);
-    }
+    $('#logoutBtn').hide();
   }
   
   // Auth functions
-  function login(username, password) {
+  function login(username, password, remember = true) {
     if (!users[username]) {
       alert('Username not found');
       return false;
@@ -37,6 +43,13 @@ $(document).ready(function() {
     
     currentUser = username;
     localStorage.setItem('currentEmployee', username);
+    
+    if (remember) {
+      localStorage.setItem(REMEMBER_ME_KEY, JSON.stringify({
+        username: username,
+        password: password
+      }));
+    }
     
     // Initialize stats if new user
     if (!employeeStats[username]) {
@@ -52,8 +65,21 @@ $(document).ready(function() {
     }
     
     $('#loginForm').hide();
+    $('#registerForm').hide();
     $('#appContent').show();
+    $('#logoutBtn').show();
     return true;
+  }
+  
+  function logout() {
+    currentUser = null;
+    clockInTime = null;
+    localStorage.removeItem('currentEmployee');
+    localStorage.removeItem(REMEMBER_ME_KEY);
+    $('#loginForm').show();
+    $('#appContent').hide();
+    $('#logoutBtn').hide();
+    resetForm();
   }
   
   function register(username, password) {
@@ -89,49 +115,8 @@ $(document).ready(function() {
     localStorage.setItem('autoExoticOrders', JSON.stringify(orders));
   }
   
-  // Event handlers
-  $('#loginBtn').click(function() {
-    const username = $('#loginUsername').val().trim();
-    const password = $('#loginPassword').val();
-    
-    if (!username || !password) {
-      alert('Please enter both username and password');
-      return;
-    }
-    
-    login(username, password);
-  });
-  
-  $('#registerBtn').click(function() {
-    const username = $('#registerUsername').val().trim();
-    const password = $('#registerPassword').val();
-    const confirm = $('#registerConfirm').val();
-    
-    if (!username || !password) {
-      alert('Please enter both username and password');
-      return;
-    }
-    
-    if (password !== confirm) {
-      alert('Passwords do not match');
-      return;
-    }
-    
-    register(username, password);
-  });
-  
-  $('#showRegisterBtn').click(function() {
-    $('#loginForm').hide();
-    $('#registerForm').show();
-  });
-  
-  $('#showLoginBtn').click(function() {
-    $('#registerForm').hide();
-    $('#loginForm').show();
-  });
-  
   // Order functions
-  window.calculateTotals = function() {
+  function calculateTotals() {
     let total = 0;
     const menuItems = $('.menu-item:checked');
     
@@ -155,11 +140,11 @@ $(document).ready(function() {
     const commission = total * 0.30;
     $('#total').text('$' + total.toFixed(2));
     $('#commission').text('$' + commission.toFixed(2));
-  };
+  }
   
-  window.SubForm = function() {
+  function submitForm() {
     const totalText = $('#total').text().replace('$', '').trim();
-    if (!totalText || totalText === '$0.00') {
+    if (!totalText || totalText === '0.00') {
       alert('Please calculate the total first!');
       return;
     }
@@ -221,17 +206,17 @@ $(document).ready(function() {
     
     alert('Order submitted successfully!');
     resetForm();
-  };
+  }
   
-  window.resetForm = function() {
+  function resetForm() {
     $('.menu-item').prop('checked', false);
     $('.quantity').val('1');
     $('#total, #commission').text('');
     $('#discount').val('0');
-  };
+  }
   
   // Clock functions
-  window.clockIn = function() {
+  function clockIn() {
     if (!currentUser) {
       alert('Please login first');
       return;
@@ -247,9 +232,9 @@ $(document).ready(function() {
     saveStats();
     
     alert(`${currentUser} clocked in at ${clockInTime.toLocaleTimeString()}`);
-  };
+  }
   
-  window.clockOut = function() {
+  function clockOut() {
     if (!currentUser) {
       alert('Please login first');
       return;
@@ -274,7 +259,7 @@ $(document).ready(function() {
     
     alert(`${currentUser} clocked out at ${clockOutTime.toLocaleTimeString()}\nDuration: ${hours}h ${minutes}m`);
     clockInTime = null;
-  };
+  }
   
   // Stats functions
   function displayOrderHistory() {
@@ -317,9 +302,6 @@ $(document).ready(function() {
     Object.keys(employeeStats).forEach(username => {
       const stats = employeeStats[username];
       filteredStats[username] = { ...stats };
-      
-      // In a real app, you would filter orders by date here
-      // This is simplified for the example
     });
     
     // Sort by revenue
@@ -348,7 +330,6 @@ $(document).ready(function() {
     `;
     
     sortedEmployees.forEach(([username, stats], index) => {
-      // Calculate performance metrics
       const avgCommission = stats.orders > 0 
         ? (stats.commission / stats.orders).toFixed(2)
         : 0;
@@ -357,7 +338,6 @@ $(document).ready(function() {
         ? (stats.revenue / stats.hoursWorked).toFixed(2)
         : 0;
       
-      // Award badges
       let badge = '';
       if (index === 0) badge = '🏆 Top Seller';
       else if (efficiency > 5000) badge = '⭐ Star Performer';
@@ -420,7 +400,6 @@ $(document).ready(function() {
     }
     
     selected.forEach(username => {
-      // Don't allow deleting currently logged in user
       if (username === currentUser) {
         alert(`Cannot delete currently logged in user (${username})`);
         return;
@@ -428,8 +407,6 @@ $(document).ready(function() {
       
       delete users[username];
       delete employeeStats[username];
-      
-      // Remove user's orders
       orders = orders.filter(order => order.employee !== username);
     });
     
@@ -441,7 +418,56 @@ $(document).ready(function() {
     displayAccounts();
   }
   
-  // Modal controls
+  // Event handlers
+  $('#loginBtn').click(function() {
+    const username = $('#loginUsername').val().trim();
+    const password = $('#loginPassword').val();
+    const rememberMe = $('#rememberMe').is(':checked');
+    
+    if (!username || !password) {
+      alert('Please enter both username and password');
+      return;
+    }
+    
+    login(username, password, rememberMe);
+  });
+  
+  $('#logoutBtn').click(function() {
+    logout();
+  });
+  
+  $('#registerBtn').click(function() {
+    const username = $('#registerUsername').val().trim();
+    const password = $('#registerPassword').val();
+    const confirm = $('#registerConfirm').val();
+    
+    if (!username || !password) {
+      alert('Please enter both username and password');
+      return;
+    }
+    
+    if (password !== confirm) {
+      alert('Passwords do not match');
+      return;
+    }
+    
+    register(username, password);
+  });
+  
+  $('#showRegisterBtn').click(function() {
+    $('#loginForm').hide();
+    $('#registerForm').show();
+  });
+  
+  $('#showLoginBtn').click(function() {
+    $('#registerForm').hide();
+    $('#loginForm').show();
+  });
+  
+  $('#calculateBtn').click(function() {
+    calculateTotals();
+  });
+  
   $('#historyBtn').click(function() {
     displayOrderHistory();
     $('#historyModal').show();
@@ -475,7 +501,7 @@ $(document).ready(function() {
   
   // Admin controls
   $('#adminPassword').keypress(function(e) {
-    if (e.which === 13) { // Enter key
+    if (e.which === 13) {
       $('#adminPassword').trigger('blur');
     }
   });
@@ -493,4 +519,11 @@ $(document).ready(function() {
   
   // Initialize
   initUI();
+  
+  // Make functions available globally
+  window.calculateTotals = calculateTotals;
+  window.SubForm = submitForm;
+  window.resetForm = resetForm;
+  window.clockIn = clockIn;
+  window.clockOut = clockOut;
 });
