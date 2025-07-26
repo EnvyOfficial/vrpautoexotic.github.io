@@ -1,13 +1,43 @@
 $(document).ready(function () {
   // Store clock-in time
   let clockInTime = null;
+  let employees = [];
+
+  // Initialize employees
+  function initializeEmployees() {
+    employees = JSON.parse(localStorage.getItem('employees')) || [
+      "Josh Freeman",
+      "Higgles",
+      "Quan Phillaps",
+      "Baha Blast",
+      "Mark Logan",
+      "Rob Banks",
+      "Smelvin Smithers"
+    ];
+    
+    // Save to localStorage if it was empty
+    if (!localStorage.getItem('employees')) {
+      localStorage.setItem('employees', JSON.stringify(employees));
+    }
+    
+    // Populate dropdown
+    const select = $('#employeeName');
+    select.empty();
+    select.append('<option value="">Select Employee</option>');
+    employees.forEach(employee => {
+      select.append(`<option value="${employee}">${employee}</option>`);
+    });
+    
+    return employees;
+  }
+
+  // Initialize employees when page loads
+  initializeEmployees();
 
   // Calculate Totals
   window.calculateTotals = function () {
-    console.log('calculateTotals() triggered'); // Debug: Confirm function is called
     let total = 0;
     const menuItems = $('.menu-item:checked');
-    console.log('Checked items:', menuItems.length); // Debug: Log number of checked items
     if (menuItems.length === 0) {
       alert('Please select at least one item to calculate!');
       $('#total, #commission').text('');
@@ -17,24 +47,18 @@ $(document).ready(function () {
       const price = parseFloat($(this).attr('data-price'));
       const quantity = parseInt($(this).next('.quantity').val()) || 1;
       const discount = parseFloat($('#discount').val()) || 0;
-      console.log(`Processing item - Price: ${price}, Quantity: ${quantity}, Discount: ${discount}%`); // Debug: Log item details
       if (!isNaN(price) && !isNaN(quantity) && quantity > 0) {
         const itemTotal = price * quantity * (1 - (discount / 100));
         total += itemTotal;
-        console.log(`Item: ${$(this).parent().text().trim()}, Item Total: ${itemTotal.toFixed(2)}`); // Debug: Log item total
-      } else {
-        console.warn(`Skipping item: Invalid price (${price}) or quantity (${quantity})`);
       }
     });
     const commission = total * 0.30;
-    $('#total').text(total.toFixed(2));
-    $('#commission').text(commission.toFixed(2));
-    console.log(`Final Total: ${total.toFixed(2)}, Commission: ${commission.toFixed(2)}`); // Debug: Log final results
+    $('#total').text('$' + total.toFixed(2));
+    $('#commission').text('$' + commission.toFixed(2));
   };
 
   // Bind Calculate button
   $('#calculateBtn').on('click', function () {
-    console.log('Calculate button clicked'); // Debug: Confirm button click
     window.calculateTotals();
   });
 
@@ -50,6 +74,56 @@ $(document).ready(function () {
     const historyContent = $('#historyContent');
     historyContent.empty();
     const orderHistory = JSON.parse(localStorage.getItem('orderHistory')) || [];
+    
+    // Add employee management section
+    historyContent.append(`
+      <div class="employee-management">
+        <h4>Employee Management</h4>
+        <div class="add-employee">
+          <input type="text" id="newEmployeeName" placeholder="New employee name" class="form-input">
+          <button type="button" id="addEmployeeBtn" class="btn btn-primary">Add Employee</button>
+        </div>
+        <div class="employee-list">
+          <h5>Current Employees:</h5>
+          <ul id="employeeList"></ul>
+        </div>
+      </div>
+    `);
+    
+    // Populate employee list
+    const employeeList = $('#employeeList');
+    employees.forEach((employee, index) => {
+      employeeList.append(`
+        <li>
+          <span>${employee}</span>
+          <button type="button" class="btn btn-danger remove-employee" data-index="${index}">
+            <i class="fas fa-trash"></i>
+          </button>
+        </li>
+      `);
+    });
+    
+    // Add event handler for adding employees
+    $('#addEmployeeBtn').on('click', function() {
+      const newName = $('#newEmployeeName').val().trim();
+      if (newName) {
+        employees.push(newName);
+        localStorage.setItem('employees', JSON.stringify(employees));
+        initializeEmployees();
+        $('#newEmployeeName').val('');
+        displayOrderHistory();
+      }
+    });
+    
+    // Add event handler for removing employees
+    $('.remove-employee').on('click', function() {
+      const index = $(this).data('index');
+      employees.splice(index, 1);
+      localStorage.setItem('employees', JSON.stringify(employees));
+      initializeEmployees();
+      displayOrderHistory();
+    });
+    
     if (orderHistory.length === 0) {
       historyContent.append('<p>No orders found.</p>');
     } else {
@@ -78,7 +152,7 @@ $(document).ready(function () {
     }
     const employeeName = $('#employeeName').val().trim();
     if (!employeeName) {
-      alert('Employee Name is required!');
+      alert('Please select an employee!');
       return;
     }
     const orderedItems = [];
@@ -94,8 +168,8 @@ $(document).ready(function () {
       alert('Please select at least one item!');
       return;
     }
-    const totalValue = parseFloat(total);
-    const commission = parseFloat($('#commission').text());
+    const totalValue = parseFloat(total.replace('$', ''));
+    const commission = parseFloat($('#commission').text().replace('$', ''));
     const discount = parseFloat($('#discount').val());
     const timestamp = new Date().toLocaleString('en-US', {
       year: 'numeric',
@@ -162,19 +236,16 @@ $(document).ready(function () {
   // Reset Form
   window.resetForm = function () {
     $('.menu-item').prop('checked', false);
-    $('.quantity').val('');
+    $('.quantity').val('1');
     $('#total, #commission').text('');
     $('#discount').val('0');
-    // Removed $('#employeeName').val(''); to keep employee name
   };
 
   // Clock In
   window.clockIn = function () {
-    console.log('clockIn() triggered');
     const employeeName = $('#employeeName').val().trim();
     if (!employeeName) {
-      alert('Employee Name is required!');
-      console.warn('Clock-in aborted: Employee name is empty');
+      alert('Please select an employee!');
       return;
     }
     clockInTime = new Date();
@@ -187,7 +258,6 @@ $(document).ready(function () {
       second: '2-digit',
       hour12: true
     }) || 'Unknown Time';
-    console.log(`Clock In: Employee: ${employeeName}, Time: ${localTime}`);
     const discordData = {
       username: 'Auto Exotic Clock',
       embeds: [{
@@ -199,7 +269,6 @@ $(document).ready(function () {
         color: 0x0000ff
       }]
     };
-    console.log('Sending clock-in webhook:', JSON.stringify(discordData));
     $.ajax({
       url: 'https://discord.com/api/webhooks/1398362885012459590/5H5-5Z4n8h3wqsN1N7hLOTB-XVjVNKzeFJ-07FHXWSVmnru9gLQsrfpiCBw27VMgnztv',
       method: 'POST',
@@ -210,7 +279,6 @@ $(document).ready(function () {
       data: JSON.stringify(discordData),
       success: function () {
         alert(`${employeeName} successfully clocked in at ${localTime}!`);
-        console.log('Clock-in webhook sent successfully');
       },
       error: function (xhr, status, error) {
         alert('Error clocking in. Webhook may be invalid or unreachable. Check console for details.');
@@ -221,16 +289,13 @@ $(document).ready(function () {
 
   // Clock Out
   window.clockOut = function () {
-    console.log('clockOut() triggered');
     const employeeName = $('#employeeName').val().trim();
     if (!employeeName) {
-      alert('Employee Name is required!');
-      console.warn('Clock-out aborted: Employee name is empty');
+      alert('Please select an employee!');
       return;
     }
     if (!clockInTime) {
       alert('No clock-in time recorded. Please clock in first!');
-      console.warn('Clock-out aborted: No clock-in time recorded');
       return;
     }
     const clockOutTime = new Date();
@@ -247,8 +312,7 @@ $(document).ready(function () {
     const durationMs = clockOutTime - clockInTime;
     const hours = Math.floor(durationMs / (1000 * 60 * 60));
     const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
-    const durationText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m${minutes !== 1 ? 's' : ''}`;
-    console.log(`Clock Out: Employee: ${employeeName}, Time: ${localTime}, Duration: ${durationText}`);
+    const durationText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
     const discordData = {
       username: 'data',
       embeds: [{
@@ -261,7 +325,6 @@ $(document).ready(function () {
         color: 0xff0000
       }]
     };
-    console.log('Sending clock-out webhook:', JSON.stringify(discordData));
     $.ajax({
       url: 'https://discord.com/api/webhooks/1398362885012459590/5H5-5Z4n8h3wqsN1N7hLOTB-XVjVNKzeFJ-07FHXWSVmnru9gLQsrfpiCBw27VMgnztv',
       method: 'POST',
@@ -272,8 +335,7 @@ $(document).ready(function () {
       data: JSON.stringify(discordData),
       success: function () {
         alert(`${employeeName} successfully clocked out at ${localTime}! Duration: ${durationText}`);
-        console.log('Clock-out webhook sent successfully');
-        clockInTime = null; // Reset clock-in time
+        clockInTime = null;
       },
       error: function (xhr, status, error) {
         alert('Error clocking out. Webhook may be invalid or unreachable. Please check console for details.');
