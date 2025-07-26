@@ -1,38 +1,6 @@
 $(document).ready(function () {
   // Store clock-in time
   let clockInTime = null;
-  let employees = [];
-
-  // Initialize employees
-  function initializeEmployees() {
-    employees = JSON.parse(localStorage.getItem('employees')) || [
-      "Josh Freeman",
-      "Higgles",
-      "Quan Phillaps",
-      "Baha Blast",
-      "Mark Logan",
-      "Rob Banks",
-      "Smelvin Smithers"
-    ];
-    
-    // Save to localStorage if it was empty
-    if (!localStorage.getItem('employees')) {
-      localStorage.setItem('employees', JSON.stringify(employees));
-    }
-    
-    // Populate dropdown
-    const select = $('#employeeName');
-    select.empty();
-    select.append('<option value="">Select Employee</option>');
-    employees.forEach(employee => {
-      select.append(`<option value="${employee}">${employee}</option>`);
-    });
-    
-    return employees;
-  }
-
-  // Initialize employees when page loads
-  initializeEmployees();
 
   // Calculate Totals
   window.calculateTotals = function () {
@@ -75,55 +43,6 @@ $(document).ready(function () {
     historyContent.empty();
     const orderHistory = JSON.parse(localStorage.getItem('orderHistory')) || [];
     
-    // Add employee management section
-    historyContent.append(`
-      <div class="employee-management">
-        <h4>Employee Management</h4>
-        <div class="add-employee">
-          <input type="text" id="newEmployeeName" placeholder="New employee name" class="form-input">
-          <button type="button" id="addEmployeeBtn" class="btn btn-primary">Add Employee</button>
-        </div>
-        <div class="employee-list">
-          <h5>Current Employees:</h5>
-          <ul id="employeeList"></ul>
-        </div>
-      </div>
-    `);
-    
-    // Populate employee list
-    const employeeList = $('#employeeList');
-    employees.forEach((employee, index) => {
-      employeeList.append(`
-        <li>
-          <span>${employee}</span>
-          <button type="button" class="btn btn-danger remove-employee" data-index="${index}">
-            <i class="fas fa-trash"></i>
-          </button>
-        </li>
-      `);
-    });
-    
-    // Add event handler for adding employees
-    $('#addEmployeeBtn').on('click', function() {
-      const newName = $('#newEmployeeName').val().trim();
-      if (newName) {
-        employees.push(newName);
-        localStorage.setItem('employees', JSON.stringify(employees));
-        initializeEmployees();
-        $('#newEmployeeName').val('');
-        displayOrderHistory();
-      }
-    });
-    
-    // Add event handler for removing employees
-    $('.remove-employee').on('click', function() {
-      const index = $(this).data('index');
-      employees.splice(index, 1);
-      localStorage.setItem('employees', JSON.stringify(employees));
-      initializeEmployees();
-      displayOrderHistory();
-    });
-    
     if (orderHistory.length === 0) {
       historyContent.append('<p>No orders found.</p>');
     } else {
@@ -152,7 +71,7 @@ $(document).ready(function () {
     }
     const employeeName = $('#employeeName').val().trim();
     if (!employeeName) {
-      alert('Please select an employee!');
+      alert('Employee Name is required!');
       return;
     }
     const orderedItems = [];
@@ -239,13 +158,14 @@ $(document).ready(function () {
     $('.quantity').val('1');
     $('#total, #commission').text('');
     $('#discount').val('0');
+    $('#employeeName').val('');
   };
 
   // Clock In
   window.clockIn = function () {
     const employeeName = $('#employeeName').val().trim();
     if (!employeeName) {
-      alert('Please select an employee!');
+      alert('Employee Name is required!');
       return;
     }
     clockInTime = new Date();
@@ -291,7 +211,7 @@ $(document).ready(function () {
   window.clockOut = function () {
     const employeeName = $('#employeeName').val().trim();
     if (!employeeName) {
-      alert('Please select an employee!');
+      alert('Employee Name is required!');
       return;
     }
     if (!clockInTime) {

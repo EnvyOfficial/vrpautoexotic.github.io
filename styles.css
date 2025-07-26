@@ -1,14 +1,14 @@
 :root {
-  --primary-color: #2196F3;
+  --primary-color: #00bcd4;
   --secondary-color: #ff5722;
   --success-color: #4CAF50;
-  --info-color: #2196F3;
+  --info-color: #00bcd4;
   --warning-color: #ff9800;
   --danger-color: #f44336;
   --dark-bg: rgba(0, 0, 0, 0.85);
   --light-text: #ffffff;
-  --border-color: #2196F3;
-  --hover-bg: #2196F3;
+  --border-color: #00bcd4;
+  --hover-bg: #00bcd4;
 }
 
 body {
@@ -30,7 +30,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(24, 24, 24, 0.7);
+  background-color: rgba(0, 0, 0, 0.7);
   z-index: -1;
 }
 
@@ -326,7 +326,7 @@ select.form-input {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2196F3;
+  background: #00a5bb;
 }
 
 /* Responsive adjustments */
