@@ -1,6 +1,6 @@
 $(document).ready(function() {
   // ADMIN CONFIGURATION
-  const ADMIN_PASSWORD = "admin123"; // Change this to your desired admin password
+  const ADMIN_PASSWORD = "AE7544"; // Change this to your desired admin password
   
   // Data storage
   let users = JSON.parse(localStorage.getItem('autoExoticUsers')) || {};
