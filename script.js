@@ -1,23 +1,26 @@
 $(document).ready(function () {
   // Store clock-in time
   let clockInTime = null;
+  let employees = [];
 
   // Initialize employees
   function initializeEmployees() {
-    let employees = JSON.parse(localStorage.getItem('employees')) || [
+    employees = JSON.parse(localStorage.getItem('employees')) || [
       "Josh Freeman",
       "Higgles",
       "Quan Phillaps",
-      "Baha Blasi",
+      "Baha Blast",
       "Mark Logan",
       "Rob Banks",
       "Smelvin Smithers"
     ];
     
+    // Save to localStorage if it was empty
     if (!localStorage.getItem('employees')) {
       localStorage.setItem('employees', JSON.stringify(employees));
     }
     
+    // Populate dropdown
     const select = $('#employeeName');
     select.empty();
     select.append('<option value="">Select Employee</option>');
@@ -29,7 +32,7 @@ $(document).ready(function () {
   }
 
   // Initialize employees when page loads
-  const employees = initializeEmployees();
+  initializeEmployees();
 
   // Calculate Totals
   window.calculateTotals = function () {
@@ -305,6 +308,7 @@ $(document).ready(function () {
       second: '2-digit',
       hour12: true
     }) || 'Unknown Time';
+    // Calculate duration
     const durationMs = clockOutTime - clockInTime;
     const hours = Math.floor(durationMs / (1000 * 60 * 60));
     const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
