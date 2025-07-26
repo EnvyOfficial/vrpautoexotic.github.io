@@ -149,7 +149,7 @@ select.form-input {
 
 /* Employee Selection Styles */
 .employee-selection {
-  background: rgba(30, 30, 30, 0.9);
+  background: rgba(0, 0, 0, 0.9);
   padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
@@ -166,7 +166,7 @@ select.form-input {
 
 /* Totals Display */
 .totals-display {
-  background: rgba(40, 40, 40, 0.9);
+  background: rgba(0, 0, 0, 0.842);
   padding: 1.2rem;
   border-radius: 8px;
   border: 1px solid var(--primary-color);
@@ -182,7 +182,7 @@ select.form-input {
 }
 
 .totals-display .amount {
-  color: #00ffaa;
+  color: #00bcd4;
   font-weight: bold;
 }
 
