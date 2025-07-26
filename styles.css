@@ -169,7 +169,7 @@ select.form-input {
 }
 
 input.form-input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(0, 0, 0, 0.562);
   opacity: 1;
 }
 
@@ -305,7 +305,7 @@ input.form-input::placeholder {
 }
 
 .close {
-  color: #aaa;
+  color: #0000005d;
   position: absolute;
   top: 15px;
   right: 25px;
